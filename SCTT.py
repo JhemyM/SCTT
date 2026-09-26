@@ -500,6 +500,7 @@ def show_main_menu():
     global game_screen_state
     game_screen_state = "menu"
     play_menu_sound()
+    audio.change_bgm("menu")
     clear_ghost_trail_history()
     if current_bg:
         apply_visual_theme()
@@ -566,6 +567,10 @@ def choose_mode(mode_name):
     manual_visible = False
     game_screen_state = "game"
     play_menu_sound()
+    if mode_name == "multi":
+        audio.change_bgm("game2")
+    else:
+        audio.change_bgm("game1")
     apply_visual_theme()
     menu.clear()
     menu.hideturtle()
