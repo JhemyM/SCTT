@@ -156,7 +156,7 @@ pen.color("white")
 pen.penup()
 pen.hideturtle()
 pen.goto(0, 260)
-pen.write("0   0", align="center", font=("Courier New", 24, "bold"))
+pen.write("0   0", align="center", font=("Fixedsys", 24, "bold"))
 
 # Ghost trail layer
 ghost_layer = turtle.Turtle()
@@ -272,7 +272,7 @@ from audio import (
 def update_score():
     pen.clear()
     pen.hideturtle()
-    pen.write(f"{score_a}   {score_b}", align="center", font=("Courier New", 24, "bold"))
+    pen.write(f"{score_a}   {score_b}", align="center", font=("Fixedsys", 24, "bold"))
 
 
 def reset_paddles_to_start():
@@ -459,19 +459,19 @@ def menu_text():
     menu.penup()
     menu.color("white")
     menu.goto(0, 180)
-    menu.write("SCTT", align="center", font=("Courier New", 32, "bold"))
+    menu.write("SCTT", align="center", font=("Fixedsys", 32, "bold"))
     menu.goto(0, 120)
-    menu.write("SELECT MODE", align="center", font=("Courier New", 28, "bold"))
+    menu.write("SELECT MODE", align="center", font=("Fixedsys", 28, "bold"))
     menu.goto(0, 40)
-    menu.write("1 - Single Player", align="center", font=("Courier New", 18, "bold"))
+    menu.write("1 - Single Player", align="center", font=("Fixedsys", 18, "bold"))
     menu.goto(0, 0)
-    menu.write("2 - Multiplayer", align="center", font=("Courier New", 18, "bold"))
+    menu.write("2 - Multiplayer", align="center", font=("Fixedsys", 18, "bold"))
     menu.goto(0, -40)
-    menu.write("3 - Training", align="center", font=("Courier New", 18, "bold"))
+    menu.write("3 - Training", align="center", font=("Fixedsys", 18, "bold"))
     menu.goto(0, -80)
-    menu.write("4 - Options", align="center", font=("Courier New", 18, "bold"))
+    menu.write("4 - Options", align="center", font=("Fixedsys", 18, "bold"))
     menu.goto(0, -120)
-    menu.write("M - Manual", align="center", font=("Courier New", 14, "bold"))
+    menu.write("M - Manual", align="center", font=("Fixedsys", 14, "bold"))
     return menu
 
 
@@ -481,19 +481,19 @@ def show_options_menu():
     play_menu_sound()
     menu.clear()
     menu.goto(0, 180)
-    menu.write("OPTIONS", align="center", font=("Courier New", 30, "bold"))
+    menu.write("OPTIONS", align="center", font=("Fixedsys", 30, "bold"))
     menu.goto(0, 140)
-    menu.write(f"1 - Sound: {'ON' if SETTINGS['sound'] else 'OFF'}", align="center", font=("Courier New", 18, "bold"))
+    menu.write(f"1 - Sound: {'ON' if SETTINGS['sound'] else 'OFF'}", align="center", font=("Fixedsys", 18, "bold"))
     menu.goto(0, 100)
-    menu.write(f"2 - Effects: {'ON' if SETTINGS['effects'] else 'OFF'}", align="center", font=("Courier New", 18, "bold"))
+    menu.write(f"2 - Effects: {'ON' if SETTINGS['effects'] else 'OFF'}", align="center", font=("Fixedsys", 18, "bold"))
     menu.goto(0, 60)
-    menu.write(f"3 - Ghosting: {'ON' if SETTINGS['ghosting'] else 'OFF'}", align="center", font=("Courier New", 18, "bold"))
+    menu.write(f"3 - Ghosting: {'ON' if SETTINGS['ghosting'] else 'OFF'}", align="center", font=("Fixedsys", 18, "bold"))
     menu.goto(0, 20)
-    menu.write(f"4 - Ghost Smoothness: {GHOST_BLOCKINESS} (lower = smoother)", align="center", font=("Courier New", 16, "bold"))
+    menu.write(f"4 - Ghost Smoothness: {GHOST_BLOCKINESS} (lower = smoother)", align="center", font=("Fixedsys", 16, "bold"))
     menu.goto(0, -20)
-    menu.write(f"5 - Trail Glow: {'ON' if SETTINGS['trail_translucent'] else 'OFF'}", align="center", font=("Courier New", 16, "bold"))
+    menu.write(f"5 - Trail Glow: {'ON' if SETTINGS['trail_translucent'] else 'OFF'}", align="center", font=("Fixedsys", 16, "bold"))
     menu.goto(0, -60)
-    menu.write("6 - Back to Menu", align="center", font=("Courier New", 18, "bold"))
+    menu.write("6 - Back to Menu", align="center", font=("Fixedsys", 18, "bold"))
 
 
 def show_main_menu():
@@ -510,19 +510,19 @@ def show_main_menu():
     pen.hideturtle()
     menu.clear()
     menu.goto(0, 180)
-    menu.write("SCTT", align="center", font=("Courier New", 32, "bold"))
+    menu.write("SCTT", align="center", font=("Fixedsys", 32, "bold"))
     menu.goto(0, 120)
-    menu.write("SELECT MODE", align="center", font=("Courier New", 28, "bold"))
+    menu.write("SELECT MODE", align="center", font=("Fixedsys", 28, "bold"))
     menu.goto(0, 40)
-    menu.write("1 - Single Player", align="center", font=("Courier New", 18, "bold"))
+    menu.write("1 - Single Player", align="center", font=("Fixedsys", 18, "bold"))
     menu.goto(0, 0)
-    menu.write("2 - Multiplayer", align="center", font=("Courier New", 18, "bold"))
+    menu.write("2 - Multiplayer", align="center", font=("Fixedsys", 18, "bold"))
     menu.goto(0, -40)
-    menu.write("3 - Training", align="center", font=("Courier New", 18, "bold"))
+    menu.write("3 - Training", align="center", font=("Fixedsys", 18, "bold"))
     menu.goto(0, -80)
-    menu.write("4 - Options", align="center", font=("Courier New", 18, "bold"))
+    menu.write("4 - Options", align="center", font=("Fixedsys", 18, "bold"))
     menu.goto(0, -120)
-    menu.write("M - Manual", align="center", font=("Courier New", 14, "bold"))
+    menu.write("M - Manual", align="center", font=("Fixedsys", 14, "bold"))
 
 
 menu = menu_text()
@@ -536,19 +536,19 @@ def show_manual():
         manual_show_time = time.monotonic()
         menu.clear()
         menu.goto(0, 180)
-        menu.write("CONTROLS", align="center", font=("Courier New", 24, "bold"))
+        menu.write("CONTROLS", align="center", font=("Fixedsys", 24, "bold"))
         menu.goto(0, 120)
-        menu.write("Left: W/S + A/D", align="center", font=("Courier New", 16, "bold"))
+        menu.write("Left: W/S + A/D", align="center", font=("Fixedsys", 16, "bold"))
         menu.goto(0, 80)
-        menu.write("Right: Up/Down + Left/Right", align="center", font=("Courier New", 16, "bold"))
+        menu.write("Right: Up/Down + Left/Right", align="center", font=("Fixedsys", 16, "bold"))
         menu.goto(0, 40)
-        menu.write("Space = Start Serve", align="center", font=("Courier New", 16, "bold"))
+        menu.write("Space = Start Serve", align="center", font=("Fixedsys", 16, "bold"))
         menu.goto(0, 0)
-        menu.write("R = Reset", align="center", font=("Courier New", 16, "bold"))
+        menu.write("R = Reset", align="center", font=("Fixedsys", 16, "bold"))
         menu.goto(0, -40)
-        menu.write("1-2-3 = Mode Select", align="center", font=("Courier New", 16, "bold"))
+        menu.write("1-2-3 = Mode Select", align="center", font=("Fixedsys", 16, "bold"))
         menu.goto(0, -80)
-        menu.write("M = Back to Menu", align="center", font=("Courier New", 16, "bold"))
+        menu.write("M = Back to Menu", align="center", font=("Fixedsys", 16, "bold"))
     else:
         menu.clear()
 
@@ -587,11 +587,11 @@ def show_match_end_screen(winner_text):
     clear_ghost_trail_history()
     menu.clear()
     menu.goto(0, 120)
-    menu.write(winner_text, align="center", font=("Courier New", 28, "bold"))
+    menu.write(winner_text, align="center", font=("Fixedsys", 28, "bold"))
     menu.goto(0, 40)
-    menu.write("1 - Play Again", align="center", font=("Courier New", 18, "bold"))
+    menu.write("1 - Play Again", align="center", font=("Fixedsys", 18, "bold"))
     menu.goto(0, -10)
-    menu.write("2 - Main Menu", align="center", font=("Courier New", 18, "bold"))
+    menu.write("2 - Main Menu", align="center", font=("Fixedsys", 18, "bold"))
     left_paddle.hideturtle()
     right_paddle.hideturtle()
     ball.hideturtle()
@@ -653,7 +653,7 @@ def reset_game():
     reset_ball_for_serve("left")
     pen.clear()
     pen.hideturtle()
-    pen.write(f"{score_a}   {score_b}", align="center", font=("Courier New", 24, "bold"))
+    pen.write(f"{score_a}   {score_b}", align="center", font=("Fixedsys", 24, "bold"))
 
 
 def maybe_auto_serve():
@@ -942,9 +942,9 @@ while True:
         sleep(0.01)
         hide_manual_if_needed()
         state = game_screen_state
+        update_background_effects()
         if state == "game":
             update_ghost_trails()
-            update_background_effects()
         else:
             clear_ghost_trail_history()
             screen.update()
@@ -1058,7 +1058,7 @@ while True:
                 if not game_over:
                     reset_ball_for_serve("left")
                     pen.clear()
-                    pen.write(f"Misses: {training_misses}/1", align="center", font=("Courier New", 20, "bold"))
+                    pen.write(f"Misses: {training_misses}/1", align="center", font=("Fixedsys", 20, "bold"))
             elif ball.xcor() <= GOAL_LEFT:
                 training_misses += 1
                 play_score_sound()
@@ -1067,7 +1067,7 @@ while True:
                 if not game_over:
                     reset_ball_for_serve("right")
                     pen.clear()
-                    pen.write(f"Misses: {training_misses}/1", align="center", font=("Courier New", 20, "bold"))
+                    pen.write(f"Misses: {training_misses}/1", align="center", font=("Fixedsys", 20, "bold"))
         else:
             # Score conditions
             if ball.xcor() >= GOAL_RIGHT:

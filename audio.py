@@ -263,4 +263,4 @@ def play_single_player_result_sound(player_won): play_effect("win" if player_won
 def play_menu_sound(): play_effect("menu")
 def play_serve_sound(): play_effect("serve")
 
-threading.Thread(target=init_audio_system, daemon=True).start()
+init_audio_system()
