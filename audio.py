@@ -1,4 +1,5 @@
 import ctypes
+import winsound
 import os
 import sys
 import subprocess
@@ -122,7 +123,7 @@ def build_bgm_track():
         mix += _synth_arp(sixteenth_time, arp_note)
         
         # 8-bit Quantization (reduce bit depth to 8-bit artificially)
-        val = max(-1.0, min(1.0, mix * 0.6))
+        val = max(-1.0, min(1.0, mix * 0.2))
         quantized = round(val * 127) / 127.0
         samples.append(int(quantized * 32767))
         
@@ -233,19 +234,16 @@ def init_audio_system():
     start_music()
 
 def start_music():
-    global _bgm_alias
     if not AudioConfig.music_enabled or not _system_ready:
         return
     if os.name == "nt":
-        if _bgm_alias:
-            _stop_mci(_bgm_alias)
-        _bgm_alias = _play_mci(_bgm_file, loop=True, volume=0.5)
+        # Using winsound for background music ensures it plays reliably on Windows without threading/MCI issues
+        winsound.PlaySound(_bgm_file, winsound.SND_FILENAME | winsound.SND_ASYNC | winsound.SND_LOOP)
 
 def stop_music():
-    global _bgm_alias
-    if _bgm_alias and os.name == "nt":
-        _stop_mci(_bgm_alias)
-        _bgm_alias = None
+    if os.name == "nt":
+        # Passing None stops any currently playing asynchronous winsound
+        winsound.PlaySound(None, winsound.SND_PURGE)
 
 def play_effect(effect_name):
     if not AudioConfig.enabled or not _system_ready:

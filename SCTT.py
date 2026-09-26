@@ -956,8 +956,10 @@ while True:
 
         if state != "game":
             continue
+    except turtle.Terminator:
+        break
     except Exception as exc:
-        if "invalid command name" in str(exc) or "!canvas" in str(exc):
+        if "invalid command name" in str(exc) or "!canvas" in str(exc) or "application has been destroyed" in str(exc):
             break
         raise
 
