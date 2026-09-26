@@ -961,6 +961,9 @@ while True:
     except Exception as exc:
         if "invalid command name" in str(exc) or "!canvas" in str(exc) or "application has been destroyed" in str(exc):
             break
+        import traceback
+        with open("crash.txt", "w") as crash_file:
+            crash_file.write(traceback.format_exc())
         raise
 
     if left_move_up:
