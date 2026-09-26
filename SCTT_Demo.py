@@ -752,7 +752,7 @@ def clear_ghost_trail_history():
 
 # Initial serve
 clear_ghost_trail_history()
-show_main_menu()
+choose_mode("single")
 
 
 _ghost_style_cache = {}
