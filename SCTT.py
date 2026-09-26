@@ -10,13 +10,30 @@ import tempfile
 import wave
 from functools import lru_cache
 
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
+
 try:
     import simpleaudio as sa
 except Exception:
     sa = None
 
+
 # Screen setup
 screen = turtle.Screen()
+try:
+    # Attempt to set the window icon
+    screen._root.iconbitmap(resource_path("icon.ico"))
+except Exception:
+    pass
+
 screen.title("SCTT - Super Competitive Table Tennis")
 screen.bgcolor("black")
 screen.setup(width=800, height=600)
