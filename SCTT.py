@@ -808,8 +808,8 @@ stars = []
 for _ in range(40):
     stars.append({
         "x": random.uniform(-400, 400),
-        "y": random.uniform(20, 280),
-        "speed": random.uniform(0.5, 2.0),
+        "y": random.uniform(-280, 280),
+        "speed": random.uniform(1.0, 4.0),
         "size": random.uniform(1, 3)
     })
 
@@ -825,16 +825,16 @@ def update_background_effects():
         star["x"] -= star["speed"]
         if star["x"] < -400:
             star["x"] = 400
-            star["y"] = random.uniform(20, 280)
+            star["y"] = random.uniform(-280, 280)
         fx_layer.goto(star["x"], star["y"])
         fx_layer.dot(star["size"])
         
     # Update and draw lasers
-    if random.random() < 0.02: # 2% chance per frame to spawn a laser
+    if random.random() < 0.05: # 5% chance per frame to spawn a laser
         lasers.append({
             "x": 400,
             "y": random.uniform(-250, 250),
-            "speed": random.uniform(15, 25),
+            "speed": random.uniform(30, 50),
             "length": random.uniform(40, 100),
             "color": random.choice(["#FF00FF", "#00FFFF", "#FFE600", "#39FF14"])
         })
