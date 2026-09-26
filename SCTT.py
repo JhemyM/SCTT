@@ -570,7 +570,12 @@ def choose_mode(mode_name):
     menu.clear()
     menu.hideturtle()
     left_paddle.showturtle()
-    right_paddle.showturtle()
+    if mode_name == "training":
+        right_paddle.hideturtle()
+        right_paddle.goto(1000, 1000)
+    else:
+        right_paddle.showturtle()
+        right_paddle.goto(350, 0)
     ball.showturtle()
     pen.hideturtle()
     global right_move_up, right_move_down, right_move_front, right_move_back
@@ -1051,14 +1056,8 @@ while True:
         # Wall training mode: one life only. If the ball passes the wall, it counts as a miss.
         if current_mode == "training":
             if ball.xcor() >= GOAL_RIGHT:
-                training_misses += 1
-                play_score_sound()
-                flash_paddles_after_score()
-                check_for_match_win()
-                if not game_over:
-                    reset_ball_for_serve("left")
-                    pen.clear()
-                    pen.write(f"Misses: {training_misses}/1", align="center", font=("Fixedsys", 20, "bold"))
+                ball.dx = -abs(ball.dx)
+                play_paddle_sound()
             elif ball.xcor() <= GOAL_LEFT:
                 training_misses += 1
                 play_score_sound()
