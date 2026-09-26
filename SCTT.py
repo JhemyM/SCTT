@@ -65,32 +65,26 @@ MODE_SETTINGS = {
 }
 
 BACKGROUND_OPTIONS = [
-    ("black", "white", 2),
-    ("green", "white", 4),
-    ("navy", "cyan", 3),
-    ("darkred", "white", 3),
-    ("purple", "white", 3),
-    ("darkorange", "black", 2),
+    ("#0F0C29", "#00F2FE", 2),  # Deep Purple Neon
+    ("#1A0033", "#FF00FF", 2),  # Midnight Magenta
+    ("#050505", "#39FF14", 2),  # Cyberpunk Green
+    ("#240046", "#FF3366", 2),  # Sunset Pink
 ]
 
-BALL_COLORS = ["white", "#ffd166", "#ff8fab", "#7ae582", "#9fe7ff", "#f5d9ff", "#f6f6f6"]
+BALL_COLORS = ["#FFFFFF", "#FFE600", "#FF00FF", "#00FFFF", "#39FF14"]
 
 PADDLE_PALETTES = {
-    "black": ("#00E5FF", "#FFD93D"),
-    "green": ("#7CFF6B", "#FFB703"),
-    "navy": ("#7AF7FF", "#FF66C4"),
-    "darkred": ("#F6D365", "#7BF1A8"),
-    "purple": ("#C77DFF", "#48CAE4"),
-    "darkorange": ("#7BDFF2", "#FF9F1C"),
+    "#0F0C29": ("#FF00FF", "#FFE600"),
+    "#1A0033": ("#00FFFF", "#FFCC00"),
+    "#050505": ("#FF00FF", "#00FFFF"),
+    "#240046": ("#00F2FE", "#FFE600"),
 }
 
 FIELD_CONTRAST = {
-    "black": ("#ffffff", "#FFD93D"),
-    "green": ("#f1fff2", "#FF5D8F"),
-    "navy": ("#dff7ff", "#FFB703"),
-    "darkred": ("#fff4f4", "#7BF1A8"),
-    "purple": ("#f7ebff", "#FF66C4"),
-    "darkorange": ("#fff4d9", "#7CFF6B"),
+    "#0F0C29": ("#FFFFFF", "#FFE600"),
+    "#1A0033": ("#FFFFFF", "#00FFFF"),
+    "#050505": ("#FFFFFF", "#FF00FF"),
+    "#240046": ("#FFFFFF", "#00F2FE"),
 }
 
 # Court drawing
@@ -162,7 +156,7 @@ pen.color("white")
 pen.penup()
 pen.hideturtle()
 pen.goto(0, 260)
-pen.write("0   0", align="center", font=("Verdana", 24, "bold"))
+pen.write("0   0", align="center", font=("Courier New", 24, "bold"))
 
 # Ghost trail layer
 ghost_layer = turtle.Turtle()
@@ -265,140 +259,20 @@ def stop_right_paddle_back():
     right_move_back = False
 
 
-@lru_cache(maxsize=128)
-def _build_tone_samples(frequency, duration_ms, volume=0.7, brightness=1.15):
-    sample_rate = 44100
-    seconds = max(0.01, duration_ms / 1000.0)
-    total_samples = max(1, int(sample_rate * seconds))
-    samples = []
-    attack_time = min(0.06, seconds * 0.18)
-    release_tail = max(0.04, seconds * 0.2)
-    amplitude = max(0.0, min(1.25, volume))
-
-    for i in range(total_samples):
-        t = i / sample_rate
-        sustain = max(0.0, 1.0 - (t / max(0.001, seconds)))
-        attack_curve = min(1.0, t / max(0.001, attack_time))
-        release_curve = max(0.08, sustain)
-        envelope = (attack_curve * 1.1) * (release_curve ** 0.8)
-
-        phase = 2 * math.pi * frequency * t
-        waveform = (
-            math.sin(phase)
-            + 0.8 * math.sin(2 * phase + 0.25)
-            + 0.45 * math.sin(3 * phase + 0.55)
-            + 0.22 * math.sin(4 * phase + 0.9)
-        ) / 1.7
-
-        shimmer = 0.12 * math.sin(2 * math.pi * (frequency * 8.0) * t + 0.7)
-        buzz = random.uniform(-0.025, 0.025) * max(0.0, 1.0 - t / max(0.001, seconds))
-        value = waveform * brightness + shimmer + buzz
-        sample = int(max(-1.0, min(1.0, value)) * 32767 * amplitude * envelope)
-        samples.append(sample)
-
-    return sample_rate, tuple(samples)
-
-
-def _play_os_tone(frequency, duration_ms, volume=0.7):
-    try:
-        sample_rate, frames = _build_tone_samples(frequency, duration_ms, volume, brightness=1.3)
-
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as wave_file:
-            temp_path = wave_file.name
-
-        with wave.open(temp_path, "wb") as wav_file:
-            wav_file.setnchannels(1)
-            wav_file.setsampwidth(2)
-            wav_file.setframerate(sample_rate)
-            wav_file.writeframes(b"".join(int(v).to_bytes(2, byteorder="little", signed=True) for v in frames))
-
-        if sys.platform.startswith("darwin"):
-            subprocess.Popen(["afplay", temp_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        elif os.name == "nt":
-            subprocess.Popen(["powershell", "-c", f"(New-Object Media.SoundPlayer '{temp_path}').PlaySync()"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        else:
-            for player in ("aplay", "paplay", "play", "ffplay"):
-                if subprocess.run(["sh", "-c", f"command -v {player}"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0:
-                    subprocess.Popen([player, temp_path], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                    break
-    except Exception:
-        return
-
-
-def play_tone(frequency, duration_ms, volume=0.7):
-    if not SETTINGS["sound"]:
-        return
-    if sa is not None:
-        try:
-            sample_rate, samples = _build_tone_samples(frequency, duration_ms, volume, brightness=1.35)
-            audio = bytearray()
-            for sample in samples:
-                audio.extend(sample.to_bytes(2, byteorder="little", signed=True))
-            sound = sa.WaveObject(audio, 1, 2, sample_rate)
-            sound.play()
-            return sound
-        except Exception:
-            pass
-    _play_os_tone(frequency, duration_ms, volume)
-
-
-def play_paddle_sound():
-    if not SETTINGS["sound"]:
-        return
-    play_tone(1600, 32, 0.95)
-    time.sleep(0.005)
-    play_tone(1200, 23, 0.82)
-    time.sleep(0.004)
-    play_tone(980, 18, 0.68)
-
-
-def play_score_sound():
-    if not SETTINGS["sound"]:
-        return
-    play_tone(240, 170, 0.9)
-    time.sleep(0.03)
-    play_tone(420, 170, 0.97)
-    time.sleep(0.03)
-    play_tone(620, 200, 1.02)
-    time.sleep(0.04)
-    play_tone(820, 230, 1.08)
-    time.sleep(0.03)
-    play_tone(1100, 180, 0.96)
-
-
-def play_single_player_result_sound(player_won):
-    if not SETTINGS["sound"]:
-        return
-    if player_won:
-        for freq in (560, 720, 930, 1180, 1440):
-            play_tone(freq, 200, 0.96)
-            time.sleep(0.04)
-    else:
-        for freq in (260, 205, 165, 125, 92):
-            play_tone(freq, 230, 0.9)
-            time.sleep(0.05)
-
-
-def play_menu_sound():
-    if not SETTINGS["sound"]:
-        return
-    play_tone(560, 75, 0.85)
-    time.sleep(0.024)
-    play_tone(840, 85, 0.96)
-
-
-def play_serve_sound():
-    if not SETTINGS["sound"]:
-        return
-    play_tone(760, 90, 0.92)
-    time.sleep(0.028)
-    play_tone(1040, 130, 1.0)
+from audio import (
+    AudioConfig, 
+    play_paddle_sound, 
+    play_score_sound, 
+    play_single_player_result_sound, 
+    play_menu_sound, 
+    play_serve_sound
+)
 
 
 def update_score():
     pen.clear()
     pen.hideturtle()
-    pen.write(f"{score_a}   {score_b}", align="center", font=("Verdana", 24, "bold"))
+    pen.write(f"{score_a}   {score_b}", align="center", font=("Courier New", 24, "bold"))
 
 
 def reset_paddles_to_start():
@@ -413,19 +287,18 @@ def apply_paddle_palette():
 
 
 def apply_visual_theme():
-    global current_bg
-    if not current_bg:
+    global current_bg, left_color, right_color, ball_color
+    if current_bg not in [b[0] for b in BACKGROUND_OPTIONS]:
         current_bg = BACKGROUND_OPTIONS[0][0]
-    left_color, right_color = PADDLE_PALETTES.get(current_bg, ("white", "white"))
-    field_text_color, ball_color = FIELD_CONTRAST.get(current_bg, ("white", "white"))
-    outline_color = "#111111" if current_bg in {"green", "darkorange"} else "#ffffff"
-    if ball_color == left_color or ball_color == right_color:
-        ball_color = "#FFFFFF" if current_bg in {"green", "navy", "purple", "darkorange"} else "#FFD93D"
+    left_color, right_color = PADDLE_PALETTES.get(current_bg, ("#FF00FF", "#00FFFF"))
+    field_text_color, ball_color = FIELD_CONTRAST.get(current_bg, ("#FFFFFF", "#FFE600"))
+    outline_color = "#FFFFFF"
+    
     screen.bgcolor(current_bg)
     left_paddle.fillcolor(left_color)
-    left_paddle.pencolor(outline_color)
+    left_paddle.pencolor(left_color)
     right_paddle.fillcolor(right_color)
-    right_paddle.pencolor(outline_color)
+    right_paddle.pencolor(right_color)
     pen.color(field_text_color)
     ball.fillcolor(ball_color)
     ball.pencolor(outline_color)
@@ -500,18 +373,60 @@ def draw_court():
     court.clear()
     court.speed(0)
     court.hideturtle()
-    court.penup()
     court.color(current_court_color)
-    court.pensize(current_line_width)
+    
+    # Vaporwave Horizon Perspective Grid
+    court.pensize(max(1, current_line_width - 1))
+    
+    for x in range(-1200, 1201, 150):
+        court.penup()
+        court.goto(0, 0)
+        court.pendown()
+        court.goto(x, -300)
+        
+        court.penup()
+        court.goto(0, 0)
+        court.pendown()
+        court.goto(x, 300)
 
+    y = 0
+    step = 8
+    for _ in range(12):
+        y -= step
+        court.penup()
+        court.goto(-400, y)
+        court.pendown()
+        court.goto(400, y)
+        step = int(step * 1.4)
+        
+    y = 0
+    step = 8
+    for _ in range(12):
+        y += step
+        court.penup()
+        court.goto(-400, y)
+        court.pendown()
+        court.goto(400, y)
+        step = int(step * 1.4)
+
+    court.pensize(current_line_width + 1)
+    court.penup()
     court.goto(-380, -280)
     court.pendown()
+    court.setheading(0)
     for _ in range(2):
         court.forward(760)
         court.left(90)
         court.forward(560)
         court.left(90)
 
+    court.penup()
+    court.goto(0, -280)
+    court.pendown()
+    court.setheading(90)
+    court.forward(560)
+
+    # Center line
     court.penup()
     court.goto(0, -280)
     court.pendown()
@@ -544,19 +459,19 @@ def menu_text():
     menu.penup()
     menu.color("white")
     menu.goto(0, 180)
-    menu.write("SCTT", align="center", font=("Verdana", 32, "bold"))
+    menu.write("SCTT", align="center", font=("Courier New", 32, "bold"))
     menu.goto(0, 120)
-    menu.write("SELECT MODE", align="center", font=("Verdana", 28, "bold"))
+    menu.write("SELECT MODE", align="center", font=("Courier New", 28, "bold"))
     menu.goto(0, 40)
-    menu.write("1 - Single Player", align="center", font=("Verdana", 18, "bold"))
+    menu.write("1 - Single Player", align="center", font=("Courier New", 18, "bold"))
     menu.goto(0, 0)
-    menu.write("2 - Multiplayer", align="center", font=("Verdana", 18, "bold"))
+    menu.write("2 - Multiplayer", align="center", font=("Courier New", 18, "bold"))
     menu.goto(0, -40)
-    menu.write("3 - Training", align="center", font=("Verdana", 18, "bold"))
+    menu.write("3 - Training", align="center", font=("Courier New", 18, "bold"))
     menu.goto(0, -80)
-    menu.write("4 - Options", align="center", font=("Verdana", 18, "bold"))
+    menu.write("4 - Options", align="center", font=("Courier New", 18, "bold"))
     menu.goto(0, -120)
-    menu.write("M - Manual", align="center", font=("Verdana", 14, "bold"))
+    menu.write("M - Manual", align="center", font=("Courier New", 14, "bold"))
     return menu
 
 
@@ -566,19 +481,19 @@ def show_options_menu():
     play_menu_sound()
     menu.clear()
     menu.goto(0, 180)
-    menu.write("OPTIONS", align="center", font=("Verdana", 30, "bold"))
+    menu.write("OPTIONS", align="center", font=("Courier New", 30, "bold"))
     menu.goto(0, 140)
-    menu.write(f"1 - Sound: {'ON' if SETTINGS['sound'] else 'OFF'}", align="center", font=("Verdana", 18, "bold"))
+    menu.write(f"1 - Sound: {'ON' if SETTINGS['sound'] else 'OFF'}", align="center", font=("Courier New", 18, "bold"))
     menu.goto(0, 100)
-    menu.write(f"2 - Effects: {'ON' if SETTINGS['effects'] else 'OFF'}", align="center", font=("Verdana", 18, "bold"))
+    menu.write(f"2 - Effects: {'ON' if SETTINGS['effects'] else 'OFF'}", align="center", font=("Courier New", 18, "bold"))
     menu.goto(0, 60)
-    menu.write(f"3 - Ghosting: {'ON' if SETTINGS['ghosting'] else 'OFF'}", align="center", font=("Verdana", 18, "bold"))
+    menu.write(f"3 - Ghosting: {'ON' if SETTINGS['ghosting'] else 'OFF'}", align="center", font=("Courier New", 18, "bold"))
     menu.goto(0, 20)
-    menu.write(f"4 - Ghost Smoothness: {GHOST_BLOCKINESS} (lower = smoother)", align="center", font=("Verdana", 16, "bold"))
+    menu.write(f"4 - Ghost Smoothness: {GHOST_BLOCKINESS} (lower = smoother)", align="center", font=("Courier New", 16, "bold"))
     menu.goto(0, -20)
-    menu.write(f"5 - Trail Glow: {'ON' if SETTINGS['trail_translucent'] else 'OFF'}", align="center", font=("Verdana", 16, "bold"))
+    menu.write(f"5 - Trail Glow: {'ON' if SETTINGS['trail_translucent'] else 'OFF'}", align="center", font=("Courier New", 16, "bold"))
     menu.goto(0, -60)
-    menu.write("6 - Back to Menu", align="center", font=("Verdana", 18, "bold"))
+    menu.write("6 - Back to Menu", align="center", font=("Courier New", 18, "bold"))
 
 
 def show_main_menu():
@@ -595,19 +510,19 @@ def show_main_menu():
     pen.hideturtle()
     menu.clear()
     menu.goto(0, 180)
-    menu.write("SCTT", align="center", font=("Verdana", 32, "bold"))
+    menu.write("SCTT", align="center", font=("Courier New", 32, "bold"))
     menu.goto(0, 120)
-    menu.write("SELECT MODE", align="center", font=("Verdana", 28, "bold"))
+    menu.write("SELECT MODE", align="center", font=("Courier New", 28, "bold"))
     menu.goto(0, 40)
-    menu.write("1 - Single Player", align="center", font=("Verdana", 18, "bold"))
+    menu.write("1 - Single Player", align="center", font=("Courier New", 18, "bold"))
     menu.goto(0, 0)
-    menu.write("2 - Multiplayer", align="center", font=("Verdana", 18, "bold"))
+    menu.write("2 - Multiplayer", align="center", font=("Courier New", 18, "bold"))
     menu.goto(0, -40)
-    menu.write("3 - Training", align="center", font=("Verdana", 18, "bold"))
+    menu.write("3 - Training", align="center", font=("Courier New", 18, "bold"))
     menu.goto(0, -80)
-    menu.write("4 - Options", align="center", font=("Verdana", 18, "bold"))
+    menu.write("4 - Options", align="center", font=("Courier New", 18, "bold"))
     menu.goto(0, -120)
-    menu.write("M - Manual", align="center", font=("Verdana", 14, "bold"))
+    menu.write("M - Manual", align="center", font=("Courier New", 14, "bold"))
 
 
 menu = menu_text()
@@ -621,19 +536,19 @@ def show_manual():
         manual_show_time = time.monotonic()
         menu.clear()
         menu.goto(0, 180)
-        menu.write("CONTROLS", align="center", font=("Verdana", 24, "bold"))
+        menu.write("CONTROLS", align="center", font=("Courier New", 24, "bold"))
         menu.goto(0, 120)
-        menu.write("Left: W/S + A/D", align="center", font=("Verdana", 16, "bold"))
+        menu.write("Left: W/S + A/D", align="center", font=("Courier New", 16, "bold"))
         menu.goto(0, 80)
-        menu.write("Right: Up/Down + Left/Right", align="center", font=("Verdana", 16, "bold"))
+        menu.write("Right: Up/Down + Left/Right", align="center", font=("Courier New", 16, "bold"))
         menu.goto(0, 40)
-        menu.write("Space = Start Serve", align="center", font=("Verdana", 16, "bold"))
+        menu.write("Space = Start Serve", align="center", font=("Courier New", 16, "bold"))
         menu.goto(0, 0)
-        menu.write("R = Reset", align="center", font=("Verdana", 16, "bold"))
+        menu.write("R = Reset", align="center", font=("Courier New", 16, "bold"))
         menu.goto(0, -40)
-        menu.write("1-2-3 = Mode Select", align="center", font=("Verdana", 16, "bold"))
+        menu.write("1-2-3 = Mode Select", align="center", font=("Courier New", 16, "bold"))
         menu.goto(0, -80)
-        menu.write("M = Back to Menu", align="center", font=("Verdana", 16, "bold"))
+        menu.write("M = Back to Menu", align="center", font=("Courier New", 16, "bold"))
     else:
         menu.clear()
 
@@ -672,11 +587,11 @@ def show_match_end_screen(winner_text):
     clear_ghost_trail_history()
     menu.clear()
     menu.goto(0, 120)
-    menu.write(winner_text, align="center", font=("Verdana", 28, "bold"))
+    menu.write(winner_text, align="center", font=("Courier New", 28, "bold"))
     menu.goto(0, 40)
-    menu.write("1 - Play Again", align="center", font=("Verdana", 18, "bold"))
+    menu.write("1 - Play Again", align="center", font=("Courier New", 18, "bold"))
     menu.goto(0, -10)
-    menu.write("2 - Main Menu", align="center", font=("Verdana", 18, "bold"))
+    menu.write("2 - Main Menu", align="center", font=("Courier New", 18, "bold"))
     left_paddle.hideturtle()
     right_paddle.hideturtle()
     ball.hideturtle()
@@ -696,6 +611,7 @@ def handle_options_choice(option):
     global GHOST_BLOCKINESS
     if option == 1:
         SETTINGS["sound"] = not SETTINGS["sound"]
+        AudioConfig.enabled = SETTINGS["sound"]
     elif option == 2:
         SETTINGS["effects"] = not SETTINGS["effects"]
     elif option == 3:
@@ -737,7 +653,7 @@ def reset_game():
     reset_ball_for_serve("left")
     pen.clear()
     pen.hideturtle()
-    pen.write(f"{score_a}   {score_b}", align="center", font=("Verdana", 24, "bold"))
+    pen.write(f"{score_a}   {score_b}", align="center", font=("Courier New", 24, "bold"))
 
 
 def maybe_auto_serve():
@@ -1084,7 +1000,7 @@ while True:
                 if not game_over:
                     reset_ball_for_serve("left")
                     pen.clear()
-                    pen.write(f"Misses: {training_misses}/1", align="center", font=("Verdana", 20, "bold"))
+                    pen.write(f"Misses: {training_misses}/1", align="center", font=("Courier New", 20, "bold"))
             elif ball.xcor() <= GOAL_LEFT:
                 training_misses += 1
                 play_score_sound()
@@ -1093,7 +1009,7 @@ while True:
                 if not game_over:
                     reset_ball_for_serve("right")
                     pen.clear()
-                    pen.write(f"Misses: {training_misses}/1", align="center", font=("Verdana", 20, "bold"))
+                    pen.write(f"Misses: {training_misses}/1", align="center", font=("Courier New", 20, "bold"))
         else:
             # Score conditions
             if ball.xcor() >= GOAL_RIGHT:
